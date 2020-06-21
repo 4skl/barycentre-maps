@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            API_KEY = 'AIzaSyAzriynC6uUzvnEVLKU853CmfPrlVqSSEQ';
+
+            locationList = []
+
+            actRZ = 8;
+            actBZ = 8;
+
+            function locationToQuery(location){
+                return 'latlng='+location.lat+', '+location.lng;
+            }
+            
+            async function getLocation(address){
+                let location = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address='+address+'&key='+API_KEY, {method: 'GET'})
+                .then(answ => answ.json())
+                .then(json => {if(json.status == 'OK'){return json.results[0].geometry.location;}else{return undefined;}})
+                .catch(err => {console.log(err); return undefined;});
+                return location;
+            }
+
+            async function getAddress(location){
+                let address = await fetch('https://maps.googleapis.com/maps/api/geocode/json?'+locationToQuery(location)+'&key='+API_KEY, {method: 'GET'})
+                .then(answ => answ.json())
+                .then(json => {if(json.status == 'OK'){return json.plus_code.global_code;}else{return undefined;}})
+                .catch(err => {console.log(err); return undefined;});
+            }
+            
+            function setMap(location, imgEl, zoom){
+                imgEl.src = 'https://maps.googleapis.com/maps/api/staticmap?center='+location+'&size=300x300&maptype=roadmap&zoom='+zoom+'&key='+API_KEY;
+            }
+
+            function setMapLocQ(locQuery, imgEl, zoom){
+                imgEl.src = 'https://maps.googleapis.com/maps/api/staticmap?'+locQuery+'&size=300x300&maptype=roadmap&zoom='+zoom+'&key='+API_KEY;
+            }
+
+            function addressEntrySub(){
+                let mapEl = document.getElementById('addressMapPos');
+                let addrEl = document.getElementById('addressEntry');
+                setMap(addrEl.value, mapEl, actRZ);
+            }
+
+            function getBarycentreLocations(){
+                let bary = {lat: 0, lng: 0};
+                for(let location of locationList){
+                    bary.lat += location.lat;
+                    bary.lng += location.lng;
+                }
+                bary.lat /= locationList.length;
+                bary.lng /= locationList.length;
+                return bary;
+            }
+
+            async function addLocation(){
+                let loc = await getLocation(document.getElementById('addressEntry').value);
+                if(loc != undefined){
+                    locationList.push(loc);
+                }
+            }
+
+            function actualizeLocationList(){
+                let locationsEl = document.getElementById('locations');//TODO
+                while(locationsEl.firstChild) locationsEl.removeChild(locationsEl.firstChild); //Remove all childs
+                for(let location of locationList){
+                    locationsEl.appendChild(document.createElement('li',{innerHTML: location}));
+                }
+            }
+
+            function showBary(){
+                locationQ = getBarycentreLocations();
+                setMap(locationQ.lat+', '+locationQ.lng, document.getElementById('baryMap'), actBZ)
+            }
+
+            async function addAndShowLocation(){
+                await addLocation();
+                showBary();
+            }
+
+            function zoomSearch(outward){
+                if(outward){
+                    actRZ-=1;
+                    if(actRZ<1){
+                        actRZ = 1;
+                    }
+                }else{
+                    actRZ+=1;
+                    if(actRZ>20){
+                        actRZ = 20;
+                    }
+                }
+                addressEntrySub();
+            }
+
+            function zoomBarycenter(outward){
+                if(outward){
+                    actBZ-=1;
+                    if(actBZ<1){
+                        actBZ = 1;
+                    }
+                }else{
+                    actBZ+=1;
+                    if(actBZ>20){
+                        actBZ = 20;
+                    }
+                }
+                showBary();
+            }
+            
+        </script>
+    </head>
+    <body>
+        <label for="address" id="addressLabel" >Address : </label>
+        <input name="address" id="addressEntry" type="text" oninput="addressEntrySub()">
+        <button id="addAddressButton" onclick="addAndShowLocation()">Add</button>
+        <br>
+        <button onclick="zoomBarycenter(false)">zoom +</button> <button onclick="zoomBarycenter(true)">zoom -</button>
+        <br>
+        <img id="addressMapPos"  onwheel="zoomSearch(event.wheelDelta < 0)"></img>
+        <br>
+        <ul id="locations">
+
+        </ul>
+        <br>
+        <button onclick="zoomBarycenter(false)">zoom +</button> <button onclick="zoomBarycenter(true)">zoom -</button>
+        <br>
+        <img id="baryMap" onwheel="zoomBarycenter(event.wheelDelta < 0)">
+            <img herf="https://www.flaticon.com/free-icon/location_1742870?term=pin%20point%20destination&page=1&position=25" style="height: 15pt; width: 15pt; top: -50%; left: -50%; position: relative;" src="blocation.png"></img>
+        </img>
+    </body>
+</html>
