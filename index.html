@@ -4,10 +4,13 @@
         <script>
             API_KEY = 'AIzaSyDou7GcRLiYx0JIxNrscSXuSFKQVP1cSf8';
 
-            locationList = []
+            locationList = [];
+            entryList = [];
 
             actRZ = 8;
-            actBZ = 8;
+            actBZ = 6;
+
+            maptype = 'roadmap'
 
             function locationToQuery(location){
                 return 'latlng='+location.lat+', '+location.lng;
@@ -18,6 +21,11 @@
                 .then(answ => answ.json())
                 .then(json => {if(json.status == 'OK'){return json.results[0].geometry.location;}else{return undefined;}})
                 .catch(err => {console.log(err); return undefined;});
+                console.log(location, address)
+                if(location!=undefined){
+                    entryList.push(address);
+                    actualizeLocationList();
+                }
                 return location;
             }
 
@@ -29,11 +37,11 @@
             }
             
             function setMap(location, imgEl, zoom){
-                imgEl.src = 'https://maps.googleapis.com/maps/api/staticmap?center='+location+'&size=300x300&maptype=roadmap&zoom='+zoom+'&key='+API_KEY;
+                imgEl.src = 'https://maps.googleapis.com/maps/api/staticmap?center='+location+'&size=300x300&maptype='+maptype+'&zoom='+zoom+'&key='+API_KEY;
             }
 
             function setMapLocQ(locQuery, imgEl, zoom){
-                imgEl.src = 'https://maps.googleapis.com/maps/api/staticmap?'+locQuery+'&size=300x300&maptype=roadmap&zoom='+zoom+'&key='+API_KEY;
+                imgEl.src = 'https://maps.googleapis.com/maps/api/staticmap?'+locQuery+'&size=300x300&maptype='+maptype+'&zoom='+zoom+'&key='+API_KEY;
             }
 
             function addressEntrySub(){
@@ -63,9 +71,33 @@
             function actualizeLocationList(){
                 let locationsEl = document.getElementById('locations');//TODO
                 while(locationsEl.firstChild) locationsEl.removeChild(locationsEl.firstChild); //Remove all childs
-                for(let location of locationList){
-                    locationsEl.appendChild(document.createElement('li',{innerHTML: location}));
-                }
+                entryList.map((entry, index) => {
+                    let locationContainer = document.createElement('div');
+
+                    let textLocation = document.createElement('li');
+                    textLocation.innerText = entry;
+                    locationContainer.appendChild(textLocation);
+
+                    let removeLocationButton = document.createElement('button');
+                    removeLocationButton.innerText = "Remove";
+                    /*(function(index){
+                        removeLocationButton.onclick = function(){
+                            entryList.splice(index);
+                            locationList.splice(index,index);
+                            console.log(index,index)
+                            actualizeLocationList();
+                        }
+                    })(index);*/
+                    removeLocationButton.onclick = () => {
+                        entryList.splice(index,1);
+                        locationList.splice(index,1);
+                        actualizeLocationList();
+                        showBary();
+                    };
+                    locationContainer.appendChild(removeLocationButton);
+
+                    locationsEl.appendChild(locationContainer);
+                });
             }
 
             function showBary(){
@@ -107,26 +139,43 @@
                 }
                 showBary();
             }
+
+            function setMapType(mt){
+                maptype = mt;
+                addressEntrySub();
+                showBary();
+            }
             
         </script>
     </head>
     <body>
         <label for="address" id="addressLabel" >Address : </label>
         <input name="address" id="addressEntry" type="text" oninput="addressEntrySub()">
-        <button id="addAddressButton" onclick="addAndShowLocation()">Add</button>
+        <button id="addAddressButton" onclick="addAndShowLocation();">Add</button>
         <br>
-        <button onclick="zoomBarycenter(false)">zoom +</button> <button onclick="zoomBarycenter(true)">zoom -</button>
+        <br>
+        <label for="maptype" id="maptypeLabel">Map Type : </label>
+        <br>
+        <label for="maptype" id="maptypeLabelRM">Roadmap</label>
+        <input type="radio" id="roadmap" name="maptype" onclick="setMapType(this.getAttribute('id'))" checked>
+        <label for="maptype" id="maptypeLabelRM" style="margin-left: 1em;">Satellite</label>
+        <input type="radio" id="satellite" name="maptype" onclick="setMapType(this.getAttribute('id'))">
+        <label for="maptype" id="maptypeLabelRM" style="margin-left: 1em;">Hybrid</label>
+        <input type="radio" id="hybrid" name="maptype" onclick="setMapType(this.getAttribute('id'))">
+        <label for="maptype" id="maptypeLabelRM" style="margin-left: 1em;">Terrain</label>
+        <input type="radio" id="terrain" name="maptype" onclick="setMapType(this.getAttribute('id'))">
+        <br>
+        <br>
+        <button onclick="zoomSearch(false)">zoom +</button> <button onclick="zoomSearch(true)">zoom -</button>
         <br>
         <img id="addressMapPos"  onwheel="zoomSearch(event.wheelDelta < 0)"></img>
         <br>
-        <ul id="locations">
-
-        </ul>
+        <ul id="locations"></ul>
         <br>
         <button onclick="zoomBarycenter(false)">zoom +</button> <button onclick="zoomBarycenter(true)">zoom -</button>
         <br>
         <img id="baryMap" onwheel="zoomBarycenter(event.wheelDelta < 0)">
-            <img herf="https://www.flaticon.com/free-icon/location_1742870?term=pin%20point%20destination&page=1&position=25" style="height: 15pt; width: 15pt; top: -150px; left: -150px; position: relative;" src="blocation.png"></img>
+            <img herf="https://www.flaticon.com/free-icon/location_1742870?term=pin%20point%20destination&page=1&position=25" style="height: 15pt; width: 15pt; top: -150px; left: -160px; position: relative;" src="blocation.png"></img>
         </img>
     </body>
 </html>
