@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+ <head>
+   <title>BaryPos</title>
+   <link rel="stylesheet" href="{% static 'css/info.css' %}">
+ </head>
+ <body>
+    <h2>BaryPos : find the barycenter of multiples position on a globe</h2>
+    <p>
+        Find the point with the smallest sum of the distance to all the points placed. (the distances aresquared to avoid that when there's 2 point the "barycenter" can be everywhere between them)
+        The method to find it is randomnized, so I need some time to compute the probabilites and fine tune it. <br><br>
+
+        To find this point only in lands is under improvment, actually there's a method, but this method have low chances to find it if it's on a small island. (not with the updated actual one)
+        This method also need imporvments in the file size (so the precision) of the map of lands in earth.<br><br>
+
+        A third method is under development, searching barycenter by using distance matrices api (barycenter in this case will be the nearest destination to travel by car).<br><br>
+        
+        More soon...<br><br>
+
+        <a href="https://4skl.com/projects/posbary/" target="_blank">Learn more here</a>
+    </p>
+ </body>
+</html>

@@ -1,0 +1,104 @@
+:root {
+    --shy-accent: #fffc;
+    --accent: #aaa;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+input[type="image"] {
+    width: 2em;
+    padding: 0.5em;
+}
+
+/* Always set the map height explicitly to define the size of the div */
+#map {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#pos-list {
+    position: absolute;
+    top: 15%;
+    max-height: 60%;
+    height: fit-content;
+    width: 20%;
+    right: 10px;
+    z-index: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* todo change scrollbar & add blur on top and bottom*/
+}
+
+.loc-card {
+    text-align: center;
+    padding: 0.5em 0.25em;
+    margin: 0.1em;
+    border: 1px dashed black;
+    background-color: var(--shy-accent);
+    border-radius: 10px;
+}
+
+#searchbar {
+    position: absolute;
+    width: 50%;
+    z-index: 1;
+    margin-top: 10px;
+    text-align: center;
+    left: 25%;
+}
+
+#query-input {
+    width: 20em;
+    height: 1.5em;
+}
+
+#results {
+    width: 50%;
+    margin: 0 auto;
+    display: none;
+}
+
+#results.visible {
+    display: unset;
+}
+
+.search-result-card {
+    background-color: var(--shy-accent);
+    border-radius: 5px;
+    padding: 0.25em 0.5em;
+    width: fit-content;
+    margin: 0.1em auto;
+}
+
+.search-result-card>p {
+    margin: 0;
+}
+
+.search-result-card:active {
+    background-color: var(--accent);
+}
+
+
+#bary-info-container {
+    position: absolute;
+    bottom: 1em;
+    z-index: 1;
+    text-align: center;
+    width: 50%;
+    left: 25%;
+}
+
+#bary-info {
+    background-color: var(--shy-accent);
+    border-radius: 10px;
+    width: fit-content;
+    padding: 0.25em 0.5em;
+    margin: 0 auto;
+}
